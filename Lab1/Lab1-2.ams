@@ -1,0 +1,79 @@
+# An array array1 contains the sequence -1 22 8 35 5 4 11 2 1 78, each
+# element of which is .word. Rearrange the element order in this array such that,
+#
+# 1 All the elements smaller than the pivot element (i.e. 8) are on the left of it,
+# 2 All the elements bigger than the pivot element (i.e. 8) are on the right of it.
+#
+# Author: Zepto (Yixiang Zhou)
+# 28/01/2022
+# TAB SIZE: 8
+
+.global _start
+.data
+array1: .word -1, 22, 8, 35, 5, 4, 11, 2, 1, 78
+
+.text
+_start:
+	la	a0, array1		# Load the address of array1[] into a0
+	li	a1, 10			# Load the number of elements in array1[] into a1
+	li	a2, 6			# Load the index of the pivot element into a2
+	call	arraypartition
+	li	a0, 0			# the exit code we will be returning is 0
+	li	a7, 93			# calling exit(93)
+	ecall
+
+swap:
+	# a0 stores the address of array, and a1, a2 the indeces of the elements to be swapped
+	slli	t1, a1, 2		# get the offset of a[j] relative
+	slli	t2, a2, 2		# get the offset of a[k] releative
+	add	t1, a0, t1
+	add	t2, a0, t2
+	lw	t0, 0(t1)
+	lw	t3, 0(t2)
+	sw	t3, 0(t1)
+	sw	t0, 0(t2)
+	jr	ra			# return
+	
+
+arraypartition:
+
+	addi	sp, sp, -16		# allocate 16 bytes from the stack
+	sw	ra, 0(sp)		# since we are making calls, we need the original ra
+
+	slli	t0, a2, 2		# get the offset of the pivot element relative to v[0]
+	add	t0, a0, t0		# get the address of the pivot element
+	lw	s1, 0(t0)		# load the pivot element to s1, used as pivot
+	addi	a1, a1, -1		# save the index of the last elements in the array
+	mv	s0, a1		
+
+	# move the pivot element to the end of array
+	call	swap
+
+	# loop from the beginning of the array to the end of the array
+	li	s2, 0			# s2 stores the index of the array used to store smaller elements
+	li	s3, 0			# s3 stores the index of elements that have been compared
+
+loop: # For loop
+	bge	s3, s0, end		# if s3 is greater than or equal to a1, break / end of loop
+	slli	t4, s3, 2		# get the offset of the element
+	add	t4, a0, t4		# get the address of the element
+	lw	t5, 0(t4)		# load the element to t5
+	ble	s1, t5, skipped		# if t5 is bigger than pivot, jump to 2; otherwise swap
+	mv	a1, s2
+	mv	a2, s3
+	call	swap
+	addi	s2, s2, 1	
+
+skipped: # bottom of the loop
+	addi	s3, s3, 1		# increment s3
+	jal	x0, loop		# loop again
+
+end:
+	mv	a1, s0
+	mv	a2, s2
+	call	swap
+	
+	# Restore original ra and return
+	lw	ra, 0(sp)
+	addi	sp, sp, 16		# deallocate the stack
+	jr	ra			# return
