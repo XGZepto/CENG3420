@@ -7,15 +7,15 @@
 
 1. Find the yield of this wafer.
 
-   $\begin{align}\text{Wafer area } &= \pi \cdot 10^2 \text{cm}^2 \\ \text{Die area} &= \text{Wafer area} / \text{Dies per wafer} \\ &= \pi \text{cm}^2 \\ \text{Yield} &= \frac{1}{[1+(\text{Defects per area} \cdot \text{Die area}/2)]^2} \\ &= 91.20\% \end{align}$
+   $$\begin{align*}\text{Wafer area } &= \pi \cdot 10^2 \text{cm}^2 \\ \text{Die area} &= \text{Wafer area} / \text{Dies per wafer} \\ &= \pi \text{cm}^2 \\ \text{Yield} &= \frac{1}{[1+(\text{Defects per area} \cdot \text{Die area}/2)]^2} \\ &= 91.20\% \end{align*}$$
 
 2. Find the cost per die for this wafer.
 
-   $\text{Cost per die} = \frac{\text{Cost per wafer}}{\text{Dies per wafer} \cdot \text{Yield}} = 0.1645$
+   $$\text{Cost per die} = \frac{\text{Cost per wafer}}{\text{Dies per wafer} \cdot \text{Yield}} = 0.1645$$
 
 ## Q2
 
-$$\begin{align} \frac{\text{Power}_\text{new procesor}}{\text{Power}_\text{old procesor}} = (1+75\%) \cdot(1-20\%)^2 =  112\%\end{align}$$
+$$\begin{align*} \frac{\text{Power}_\text{new procesor}}{\text{Power}_\text{old procesor}} = (75\%) \cdot(1-20\%)^2 =  48\%\end{align*}$$
 
 ## Q3
 
@@ -51,7 +51,7 @@ addi	x5, x5, -8
    	acc += 2;
    ```
 
-3. $4N + 1$ instructions if $N > 0$; $4\cdot(2^{32}+N)+1$ instructions if $N < 0$.
+3. $4N + 1$ instructions if $N \ge 0$; $4\cdot(2^{32}+N)+1$ instructions if $N \lt 0$.
 
 4. ```c
    for (; i >= 0; --i)
@@ -61,19 +61,19 @@ addi	x5, x5, -8
 ## Q6
 
 1. ```assembly
-   addi	x12, x30, 8
-   # x12 = x30 + 8
-   # x12 = &A[f+2]
+   addi	x12, x30, 4
+   # x12 = x30 + 4
+   # x12 = &A[f+1]
    lw		x30, 0(x12)
    # load the content in the address indicated by x12 to x30
-   # x30 = A[f+2]
+   # x30 = A[f+1]
    add		x30, x30, x5
-   # x30 = A[f+2] + A[f]
+   # x30 = A[f+1] + A[f]
    sw`		x30, 0(x31)
-   # B[g] = A[f+2] + A[f]
+   # B[g] = A[f+1] + A[f]
    # save the value in x30 to the address indicated by x31
    ```
 
 2. ```c
-   B[g] = A[f+2] + A[f]
+   B[g] = A[f+1] + A[f]
    ```
