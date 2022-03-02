@@ -141,17 +141,36 @@ void handle_pseudo_inst(
 	struct_label_table *label_table
 ) {
 	if (is_opcode(opcode) == LA) {
-		int binary;
-		binary = (0x0D << 2) + 0x03;
-		binary += (reg_to_num(arg1, line_no) << 7);
-		fprintf(output_file, "0x%08x\n", binary);
-		binary = (0x04 << 2) + 0x03;
-		binary += (reg_to_num(arg1, line_no) << 7);
-		binary += (reg_to_num(arg1, line_no) << 15);
-		binary += (MASK11_0(handle_label_or_imm(arg2, label_table, cmd_no, line_no)) << 20);
-		fprintf(output_file, "0x%08x\n", binary);
-		warn("Lab2-1 assignment: LA instruction\n");
-		// exit(EXIT_FAILURE);
+		char temp1[MAX_LINE_LENGTH + 1], temp2[MAX_LINE_LENGTH + 1];
+		int i = 0;
+		/*
+		 * lui is performed first.
+		 * the offset is a 20-bit higher number.
+		 */
+		fprintf(
+			output_file,
+			"0x%08x\n",
+			inst_to_binary(line_no, cmd_no, "lui", arg1, arg2, arg3, label_table)
+		);
+		while (arg1[i] != '\0') {
+			temp1[i] = arg1[i];
+			i++;
+		}
+		temp1[i] = '\0';
+		/*
+		 * addi is performed first.
+		 * the offset is a 12-bit lower number.
+		 */
+		sprintf(
+			temp2,
+			"%d",
+			(handle_label_or_imm(arg2, label_table, cmd_no, line_no)) & 0xFFF
+		);
+		fprintf(
+			output_file,
+			"0x%08x\n",
+			inst_to_binary(line_no, cmd_no, "addi", arg1, temp1, temp2, label_table)
+		);
 	} else if (is_opcode(opcode) == FILL) {
 		fprintf(output_file, "0x%08x\n", validate_imm(arg1, 31, line_no));
 	} else if (is_opcode(opcode) == HALT) {
@@ -226,7 +245,7 @@ int inst_to_binary(
 	} else if (is_opcode(opcode) == LUI) {
 		binary = (0x0D << 2) + 0x03;
 		binary += (reg_to_num(arg1, line_no) << 7);
-		binary += ((handle_label_or_imm(arg2, label_table, cmd_no, line_no) & 0xFFFFF) << 12);
+		binary += ((handle_label_or_imm(arg2, label_table, cmd_no, line_no) & 0xFFFFF000));
 		warn("Lab2-1 assignment: LUI instruction\n");
 		// exit(EXIT_FAILURE);
 	}
@@ -302,8 +321,7 @@ int inst_to_binary(
 		binary = (0x1b << 2) + 0x03;
 		binary += (reg_to_num(arg1, line_no) << 7);
 		int offset;
-		// the offset is multiplied by 2 since all instructions must be half-word aligned.
-		offset = (handle_label_or_imm(arg2, label_table, cmd_no, line_no) >> 1);
+		offset = (handle_label_or_imm(arg2, label_table, cmd_no, line_no));
 		// imm[11]
 		binary += ((offset & 0x800) << 9);
 		// imm[10:1]
@@ -312,6 +330,7 @@ int inst_to_binary(
 		binary += ((offset & 0xFF000));
 		// imm[20]
 		binary += ((offset & 0x100000) << 11);
+		printf("BINRAY 0x%08x 0x%08x\n", binary, offset);
 		warn("Lab2-1 assignment: JAL instruction\n");
 		// exit(EXIT_FAILURE);
 	}
@@ -322,7 +341,7 @@ int inst_to_binary(
 		binary += (reg_to_num(arg1, line_no) << 15);
 		binary += (reg_to_num(arg2, line_no) << 20);
 		int offset;
-		offset = label_to_num(arg3, 12, label_table, cmd_no, line_no) >> 1;
+		offset = label_to_num(arg3, 12, label_table, cmd_no, line_no);
 		// imm[11]
 		binary += ((offset & 0x800) >> 4);
 		// imm[4:1]
@@ -336,7 +355,7 @@ int inst_to_binary(
 		binary += (reg_to_num(arg1, line_no) << 15);
 		binary += (reg_to_num(arg2, line_no) << 20);
 		int offset;
-		offset = label_to_num(arg3, 12, label_table, cmd_no, line_no) >> 1;
+		offset = label_to_num(arg3, 12, label_table, cmd_no, line_no);
 		// imm[11]
 		binary += ((offset & 0x800) >> 4);
 		// imm[4:1]
@@ -352,7 +371,7 @@ int inst_to_binary(
 		binary += (reg_to_num(arg1, line_no) << 15);
 		binary += (reg_to_num(arg2, line_no) << 20);
 		int offset;
-		offset = label_to_num(arg3, 12, label_table, cmd_no, line_no) >> 1;
+		offset = label_to_num(arg3, 12, label_table, cmd_no, line_no);
 		// imm[11]
 		binary += ((offset & 0x800) >> 4);
 		// imm[4:1]
@@ -368,7 +387,7 @@ int inst_to_binary(
 		binary += (reg_to_num(arg1, line_no) << 15);
 		binary += (reg_to_num(arg2, line_no) << 20);
 		int offset;
-		offset = label_to_num(arg3, 12, label_table, cmd_no, line_no) >> 1;
+		offset = label_to_num(arg3, 12, label_table, cmd_no, line_no);
 		// imm[11]
 		binary += ((offset & 0x800) >> 4);
 		// imm[4:1]
