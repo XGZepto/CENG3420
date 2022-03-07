@@ -35,10 +35,10 @@ do
 	diff ${benchmark%.*}.bin ${output} >> ${report}
 done
 
-result=`wc -l ${report} | cut -d ' '  -f 8`
-if [[ `wc -l ${report} | cut -d ' '  -f 8` == 6 ]]
+result=`wc -l ${report}`
+if [[ `wc -l ${report}` == "6 ./report" ]]
 then
 	echo -e "[INFO]: You have passed the Lab.\n"
 else
-	echo -e "[INFO]: Your implementation has some bugs.\n"
+	echo -e "[ERROR]: You have failed the Lab.\n"
 fi

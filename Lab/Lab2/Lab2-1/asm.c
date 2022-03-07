@@ -330,7 +330,6 @@ int inst_to_binary(
 		binary += ((offset & 0xFF000));
 		// imm[20]
 		binary += ((offset & 0x100000) << 11);
-		printf("BINRAY 0x%08x 0x%08x\n", binary, offset);
 		warn("Lab2-1 assignment: JAL instruction\n");
 		// exit(EXIT_FAILURE);
 	}
