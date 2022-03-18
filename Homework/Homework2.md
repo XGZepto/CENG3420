@@ -92,10 +92,10 @@ Let B =
 4.150390625 x 10^{-1}	=	0.4150390625 = 2^{-2} x 1.1010100100
 						
 Shifting B by 6 positions            GRS
-						1.1010001000 00
-						0.0000011010 1001 (Guard = 1, Round = 0, Sticky = 1)
+						1.1010001000 000
+						0.0000011010 101 (Guard = 1, Round = 0, Sticky = 1)
 						-----------------
-						1.1010100010 10
+						1.1010100010 101
 The value is rounded up =>
 						1.1010100011 x 2^4
 					=	2.6546875 x 10^1
@@ -120,7 +120,7 @@ Moving the third ld instruction up after the second ld instruction eliminates bo
 
    | RegWrite | ALUSrc  | ALU Control | MemWrite | MemRead | MemToReg |
    | -------- | ------- | ----------- | -------- | ------- | -------- |
-   | 1        | 0 (Reg) | 010 (Add)   | 0        | 0       | 0 (ALU)  |
+   | 1        | 0 (Reg) | 0000 (Add)  | 0        | 0       | 0 (ALU)  |
 
    
 

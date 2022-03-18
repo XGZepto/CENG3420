@@ -26,11 +26,11 @@
 
    We have the new total clock cycles as follows:
 
-   $$\text{New Clock cycles} = \sum_{\text{instr. type}} \text{New CPI} \times \text{No. instr.} = 352 \times 10^6$$.
+   $$\text{New Clock cycles} = \sum_{\text{instr. type}} \text{New CPI} \times \text{No. instr.} = 342.4 \times 10^6$$.
 
-   $$\text{improved T}_\text{CPU} = 0.176\text{s}$$
+   $$\text{improved T}_\text{CPU} = 0.171.2\text{s}$$
 
-   The improvement over the original time is $0.08\text{s}$.
+   The improvement over the original time is $0.0848\text{s}$.
 
    
 

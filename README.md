@@ -13,3 +13,4 @@ This course provides an introduction to computer organization. The objective is 
 - **24/02/2022** Added [Lab 2-1 Assignment](Lab/Lab2/Lab2-1/asm.c).
 - **03/03/2022** Added [Lab 2-2 Assignment](Lab/Lab2/Lab2-2/sim.c) and [Lab 2 Report](Lab/Lab2/Report.md).
 - **10/03/2022** Added [Homework 2](Homework/Homework2.md) and [Homework 3](Homework/Homework3.md).
+- **19/03/2022** Added [Lab 3-1 Assignment](Lab/Lab3/Lab3-1/riscv-lc.c).
