@@ -15,3 +15,4 @@ This course provides an introduction to computer organization. The objective is 
 - **10/03/2022** Added [Homework 2](Homework/Homework2.md) and [Homework 3](Homework/Homework3.md).
 - **17/03/2022** Added [Midterm Answersheet](Midterm/Midterm.md).
 - **19/03/2022** Added [Lab 3-1 Assignment](Lab/Lab3/Lab3-1/riscv-lc.c).
+- **15/04/2022** Added [HomeWork 4](Homework/Homework4.md).

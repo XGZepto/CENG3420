@@ -134,4 +134,3 @@ We have ``8 KiB`` data that is ``2048`` words, therefore there are ``512`` block
 We need ``9`` bits to index ``512`` blocks and ``2`` bits for the word within a block, hence the total bits are:
 
 $$2^9 \times (2^2 \times 32 + (32 - 9- 2 - 2) + 1) = 75,776$$.
-
