@@ -35,8 +35,7 @@ void eval_micro_sequencer() {
     /*
      * Lab3-1 assignment: implement that x0 is hard-wired to zero
      */
-    error("Lab3-1 assignment: x0 is hard-wired to zero\n");
-
+    NEXT_LATCHES.REGS[0] = CURRENT_LATCHES.REGS[0] = 0;
     int ird = get_IRD(CURRENT_LATCHES.MICROINSTRUCTION);
     int j = get_J(CURRENT_LATCHES.MICROINSTRUCTION);
     int _B = blockBMUX(

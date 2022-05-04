@@ -31,97 +31,146 @@ void cycle() {
 }
 
 
-void cycle_memory() {
-    static int mem_cycle_cnt = 0;
+void eval_bus_drivers() {
+    value_of_GatePC = 0;
+    value_of_GateMAR = 0;
+    value_of_GateMDR = 0;
+    value_of_GateALUSHF = 0;
+    value_of_GateRS2 = 0;
 
-    int mio_en = get_MIO_EN(CURRENT_LATCHES.MICROINSTRUCTION),
-        we = get_WE(CURRENT_LATCHES.MICROINSTRUCTION);
-    int W = ~mask_val(CURRENT_LATCHES.MAR, 0, 0) & we;
+    int value_of_MARMUX = 0,
+        value_of_alu,
+        value_of_shift_function_unit = 0;
 
-    MEM_VAL = 0;
-    NEXT_LATCHES.READY = 0;
-    info("memory cycle count = %d\n", mem_cycle_cnt);
-    info("MIO_EN = %d, WE = %d, W = %d\n", mio_en, we, W);
-
-    if (mio_en) {
-        if (mem_cycle_cnt >= 0) {
-            if (mem_cycle_cnt < 3) {
-                mem_cycle_cnt++;
-            } else if (mem_cycle_cnt == 3) {
-                mem_cycle_cnt++;
-                NEXT_LATCHES.READY = 1;
-            } else {
-                mem_cycle_cnt = 0;
-            }
-        }
-        if (W) {
-            get_DATASIZE(CURRENT_LATCHES.MICROINSTRUCTION);
-            error("Lab3-2 assignment: write to the main memory");
-        } else {
-            /* read */
-            /*
-             * Lab3-2 assignment
-             * Tips: assign the read value to `MEM_VAL`
-             */
-            error("Lab3-2 assignment: read from the main memory");
-        }
-        mem_cycle_cnt++;
-    } else
-        mem_cycle_cnt = 0;
-}
-
-
-void latch_datapath_values() {
-    /* LD.MDR */
-    if (get_LD_MDR(CURRENT_LATCHES.MICROINSTRUCTION)) {
-        NEXT_LATCHES.MDR = mdr_mux(
-            get_MDRMUX(CURRENT_LATCHES.MICROINSTRUCTION),
-            MEM_VAL,
-            BUS
-        );
-    }
-    /* LD.BEN */
-    if (get_LD_BEN(CURRENT_LATCHES.MICROINSTRUCTION)) {
-        NEXT_LATCHES.B = compare_function_unit(
-            mask_val(CURRENT_LATCHES.IR, 14, 12),
-            rs1_en(
-                get_RS1En(CURRENT_LATCHES.MICROINSTRUCTION),
-                0,
-                CURRENT_LATCHES.REGS[mask_val(CURRENT_LATCHES.IR, 19, 15)]
+    value_of_MARMUX = addr2_mux(
+        get_ADDR2MUX(CURRENT_LATCHES.MICROINSTRUCTION),
+        0,
+        sext_unit(mask_val(CURRENT_LATCHES.IR, 31, 20), 12),
+        sext_unit(
+            s_format_imm_gen_unit(
+                mask_val(CURRENT_LATCHES.IR, 11, 7),
+                mask_val(CURRENT_LATCHES.IR, 31, 25)
             ),
+            12
+        ),
+        sext_unit(
+            j_format_imm_gen_unit(
+                mask_val(CURRENT_LATCHES.IR, 31, 31),
+                mask_val(CURRENT_LATCHES.IR, 30, 21),
+                mask_val(CURRENT_LATCHES.IR, 20, 20),
+                mask_val(CURRENT_LATCHES.IR, 19, 12)
+            ),
+            20
+        )
+    ) + addr1_mux(
+        get_ADDR1MUX(CURRENT_LATCHES.MICROINSTRUCTION),
+        0,
+        CURRENT_LATCHES.PC,
+        rs1_en(
+            get_RS1En(CURRENT_LATCHES.MICROINSTRUCTION),
+            0,
+            CURRENT_LATCHES.REGS[mask_val(CURRENT_LATCHES.IR, 19, 15)]
+        ),
+        sext_unit(
+            b_format_imm_gen_unit(
+                mask_val(CURRENT_LATCHES.IR, 7, 7),
+                mask_val(CURRENT_LATCHES.IR, 11, 8),
+                mask_val(CURRENT_LATCHES.IR, 30, 25),
+                mask_val(CURRENT_LATCHES.IR, 31, 31)
+            ),
+            12
+        )
+    );
+
+    /* input of GateMAR */
+    value_of_GateMAR = value_of_MARMUX;
+
+    /* output of ALU */
+    value_of_alu = alu(
+        mask_val(CURRENT_LATCHES.IR, 14, 12),
+        mask_val(CURRENT_LATCHES.IR, 31, 25),
+        rs1_en(
+            get_RS1En(CURRENT_LATCHES.MICROINSTRUCTION),
+            0,
+            CURRENT_LATCHES.REGS[mask_val(CURRENT_LATCHES.IR, 19, 15)]
+        ),
+        rs2_mux(
+            get_RS2MUX(CURRENT_LATCHES.MICROINSTRUCTION),
             rs2_en(
                 get_RS2En(CURRENT_LATCHES.MICROINSTRUCTION),
                 0,
                 CURRENT_LATCHES.REGS[mask_val(CURRENT_LATCHES.IR, 24, 20)]
             ),
-            0
-        );
+            sext_unit(mask_val(CURRENT_LATCHES.IR, 31, 20), 12)
+        )
+    );
+
+    /* output of the shift function unit */
+    value_of_shift_function_unit = shift_function_unit(
+        mask_val(CURRENT_LATCHES.IR, 14, 12),
+        mask_val(CURRENT_LATCHES.IR, 31, 25),
+        rs1_en(
+            get_RS1En(CURRENT_LATCHES.MICROINSTRUCTION),
+            0,
+            CURRENT_LATCHES.REGS[mask_val(CURRENT_LATCHES.IR, 19, 15)]
+        ),
+        rs2_mux(
+            get_RS2MUX(CURRENT_LATCHES.MICROINSTRUCTION),
+            rs2_en(
+                get_RS2En(CURRENT_LATCHES.MICROINSTRUCTION),
+                0,
+                CURRENT_LATCHES.REGS[mask_val(CURRENT_LATCHES.IR, 24, 20)]
+            ),
+            sext_unit(mask_val(CURRENT_LATCHES.IR, 31, 20), 12)
+        )
+    );
+
+    /* input of GateALUSHF */
+    value_of_GateALUSHF = alu_shift_mux(mask_val(CURRENT_LATCHES.IR, 14, 12),
+                    value_of_alu,
+                    value_of_shift_function_unit
+            );
+
+    /* input of GatePC */
+    value_of_GatePC = CURRENT_LATCHES.PC;
+
+    /* input of GateRS2 */
+    value_of_GateRS2 = rs2_en(
+        get_RS2En(CURRENT_LATCHES.MICROINSTRUCTION),
+        0,
+        CURRENT_LATCHES.REGS[mask_val(CURRENT_LATCHES.IR, 24, 20)]
+    );
+
+    /* input of GateMDR */
+    value_of_GateMDR = CURRENT_LATCHES.MDR;
+}
+
+
+void drive_bus() {
+    int _GateMAR = get_GateMAR(CURRENT_LATCHES.MICROINSTRUCTION);
+    int _GateALUSHF = get_GateALUSHF(CURRENT_LATCHES.MICROINSTRUCTION);
+    int _GatePC = get_GatePC(CURRENT_LATCHES.MICROINSTRUCTION);
+    int _GateRS2 = get_GateRS2(CURRENT_LATCHES.MICROINSTRUCTION);
+    int _GateMDR = get_GateMDR(CURRENT_LATCHES.MICROINSTRUCTION);
+
+    switch ((_GateMDR << 4) + (_GateRS2 << 3) + (_GatePC << 2) + (_GateALUSHF << 1) + (_GateMAR)) {
+        case 0:
+            BUS = 0;
+            break;
+        case 1:
+            BUS = value_of_GateMAR;
+        case 2:
+            BUS = value_of_GateALUSHF;
+        case 4:
+            BUS = value_of_GatePC;
+        case 8:
+            BUS = value_of_GateRS2;
+        case 16:
+            BUS = value_of_GateMDR;
+        default:
+            BUS = 0;
+            warn("unknown gate drivers for BUS\n");
     }
-    /* LD.REG */
-    if (get_LD_REG(CURRENT_LATCHES.MICROINSTRUCTION)) {
-        NEXT_LATCHES.REGS[mask_val(CURRENT_LATCHES.IR, 11, 7)] = BUS;
-        
-    }
-    /* LD.MAR */
-    if (get_LD_MAR(CURRENT_LATCHES.MICROINSTRUCTION)) {
-        NEXT_LATCHES.MAR = BUS;
-    }
-    /* LD.IR */
-    if (get_LD_IR(CURRENT_LATCHES.MICROINSTRUCTION)) {
-        NEXT_LATCHES.IR = BUS;
-    }
-    /* LD.PC */
-    if (get_LD_PC(CURRENT_LATCHES.MICROINSTRUCTION)) {
-        NEXT_LATCHES.PC = pc_mux(
-            get_PCMUX(CURRENT_LATCHES.MICROINSTRUCTION), 
-            CURRENT_LATCHES.PC + 4, 
-            BUS
-        );
-        
-    }
-    /* RESET */
-    if (get_RESET(CURRENT_LATCHES.MICROINSTRUCTION))
-        NEXT_LATCHES.PC = TRAPVEC_BASE_ADDR;
 }
 
 
