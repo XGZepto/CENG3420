@@ -147,6 +147,8 @@ void eval_bus_drivers() {
 
 
 void drive_bus() {
+
+    info("drive_bus %d %d\n", CURRENT_LATCHES.STATE_NUMBER, NEXT_LATCHES.STATE_NUMBER);
     int _GateMAR = get_GateMAR(CURRENT_LATCHES.MICROINSTRUCTION);
     int _GateALUSHF = get_GateALUSHF(CURRENT_LATCHES.MICROINSTRUCTION);
     int _GatePC = get_GatePC(CURRENT_LATCHES.MICROINSTRUCTION);
@@ -159,17 +161,28 @@ void drive_bus() {
             break;
         case 1:
             BUS = value_of_GateMAR;
+            info("BUS = value_of_GateMAR %d\n", value_of_GateMAR);
+            break;
         case 2:
             BUS = value_of_GateALUSHF;
+            info("BUS = value_of_GateALUSHF %d\n", value_of_GateALUSHF);
+            break;
         case 4:
             BUS = value_of_GatePC;
+            info("BUS = value_of_GatePC %d\n", value_of_GatePC);
+            break;
         case 8:
             BUS = value_of_GateRS2;
+            info("BUS = value_of_GateRS2 %d\n", value_of_GateRS2);
+            break;
         case 16:
             BUS = value_of_GateMDR;
+            info("BUS = value_of_GateMDR %d\n", value_of_GateMDR);
+            break;
         default:
             BUS = 0;
             warn("unknown gate drivers for BUS\n");
+            printf("MS %d\n", CURRENT_LATCHES.STATE_NUMBER);
     }
 }
 
